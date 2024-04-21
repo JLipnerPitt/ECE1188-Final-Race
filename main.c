@@ -55,71 +55,80 @@ int32_t Error_R;
 int32_t Ki = 31000;  // integral gain
 float Kp = 14.8; // proportional gain
 float Kd = 0.0000009; // derivative gain
-int32_t DistR;
-int32_t DistL;
+int32_t ErrorR;
+int32_t ErrorL;
 int32_t DistError;
-int32_t DesiredDistR = 250;
-int32_t DesiredDistL = 250;
+int32_t DesiredR = 250;
+int32_t DesiredL = 250;
 int32_t TempDR, TempDL, TempD_Error = 0;
-uint32_t LeftDuty, RightDuty = 7500;
-uint32_t AdjustedL, AdjustedR = 0;
+uint32_t LeftDuty, RightDuty = 5000;
+uint8_t semaphore = 0;
+int32_t UR,UL;
 
+void SysTick_Handler(void) {
+    if (semaphore == 3) {
+        ErrorL = DesiredR - Distances[0];
+        ErrorR = DesiredL - Distances[2];
+        DistError = ErrorL-ErrorR;
+        UL = (UL+(Kp*ErrorL) + (Ki*ErrorL/1024)+ (Kd*(ErrorL - TempDL)));
+        UR = (UR+(Kp*ErrorR) + (Ki*ErrorR/1024)+ (Kd*(ErrorR - TempDR)));
+
+        if (Distances[1] < 100) {
+            if (Distances[0] < Distances[2]) {
+                Motor_Right(UL,0);
+            }
+            else if (Distances[2] < Distances[0]) {
+                Motor_Left(0,UR);
+            }
+        }
+        else {
+
+            if (Distances[0] < 125 && Distances[2] > 175) {
+                Motor_Forward(UL,UR);
+            }
+            else if (Distances[2] < 125 && Distances[0] > 175) {
+                Motor_Forward(UL,UR);
+            }
+            else {
+                Motor_Forward(3500,3500);
+            }
+        }
+
+        TempDL = ErrorL;
+        TempDR = ErrorR;
+
+        semaphore = 0;
+        Clock_Delay1ms(10);
+    }
+    semaphore++;
+}
 void main(void)
 { // busy-wait implementation
 
   Clock_Init48MHz();
-  I2CB1_Init(60); // baud rate = 12MHz/60=200kHz
+  I2CB1_Init(30); // baud rate = 12MHz/60=200kHz
   Motor_Init();
   Tachometer_Init();
   //Init();
   //Clear();
-  OutString("OPT3101");
-  SetCursor(0, 1);
-  OutString("Left =");
-  SetCursor(0, 2);
-  OutString("Centr=");
-  SetCursor(0, 3);
-  OutString("Right=");
-  SetCursor(0, 4);
-  OutString("Busy-wait");
   OPT3101_Init();
   OPT3101_Setup();
   OPT3101_CalibrateInternalCrosstalk();
   OPT3101_StartMeasurementChannel(channel);
+  EnableInterrupts();
   StartTime = SysTick->VAL;
-  uint8_t semaphore = 0;
-  int32_t UR,UL;
+  SysTick_Init(48000,2);
     while(1)
     {
+      UR = DesiredR;
+      UL = DesiredL;
       if(pollDistanceSensor())
       {
         TimeToConvert = ((StartTime-SysTick->VAL)&0x00FFFFFF)/48000; // msec
         channel = (channel+1)%3;
-        UR = RightDuty;
-        UL = LeftDuty;
-        DistL = DesiredDistR - Distances[0];
-        DistR = DesiredDistL - Distances[2];
-        DistError = DistL-DistR;
-        UL = ((Kp*DistL) + (Ki*DistL/1024)+ (Kd*(DistL - TempDL)));
-        UR = ((Kp*DistR) + (Ki*DistR/1024)+ (Kd*(DistR - TempDR)));
-
-        if (Distances[0] < 50 && Distances[2] > 200) {
-            Motor_Forward(UL+LeftDuty+1000,RightDuty-UR);
-        }
-        else if (Distances[2] < 50 && Distances[0] > 200) {
-            Motor_Forward(LeftDuty-UL+1000,RightDuty+UR);
-        }
-        else {
-            Motor_Forward(3500,3500);
-        }
-
-        TempDL = DistL;
-        TempDR = DistR;
-
-        semaphore++;
-        Clock_Delay1ms(10);
         OPT3101_StartMeasurementChannel(channel);
         StartTime = SysTick->VAL;
       }
+      WaitForInterrupt();
     }
   }
