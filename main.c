@@ -11,6 +11,7 @@
 #include "UART0.h" // Include UART0 header file
 #include "Motor.h" // Include Motor header file
 #include "Bump.h"  // Include Bump header file
+#include "TimerA1.h"
 
 void UartSetCur(uint8_t newX, uint8_t newY)
 {
@@ -68,9 +69,8 @@ uint8_t semaphore = 0;
 int32_t UR,UL;
 char chat;
 
-void SysTick_Handler(void) {
-
-
+//hardware interupt using TimerA1
+void CheckCommands(void){
     if(chat == 'g'){//HEX:67
         Motor_Forward(7500, 7500);
         LaunchPad_Output(0x06);     //sky blue = forward/go
@@ -80,12 +80,13 @@ void SysTick_Handler(void) {
         Motor_Backward(7500, 7500);
         LaunchPad_Output(0x05);     //pink = backward
     }
-
     if(chat == 's'){//HEX:73
         Motor_Stop(0, 0);
         LaunchPad_Output(0x07);     //white = stop
     }
+}
 
+void SysTick_Handler(void) {
     if (semaphore == 3) {
         ErrorL = DesiredR - Distances[0];
         ErrorR = DesiredL - Distances[2];
@@ -110,7 +111,7 @@ void SysTick_Handler(void) {
                 Motor_Forward(UL,UR);
             }
             else {
-                Motor_Forward(3500,3500);
+                //Motor_Forward(3500,3500); JUSTIN THIS LINE FUCKS EVERYTHING UP
             }
         }
 
@@ -138,6 +139,7 @@ void main(void)
   OPT3101_CalibrateInternalCrosstalk();
   OPT3101_StartMeasurementChannel(channel);
 
+  TimerA1_Init(&CheckCommands, 50000); // Check for collision every 10 ms (assuming 48MHz clock)
   EnableInterrupts();
   StartTime = SysTick->VAL;
   SysTick_Init(48000,2);
