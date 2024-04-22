@@ -66,31 +66,34 @@ uint8_t semaphore = 0;
 int32_t UR,UL;
 
 void SysTick_Handler(void) {
-    if (semaphore == 3) {
+    if (semaphore == 2) {
         ErrorL = DesiredR - Distances[0];
         ErrorR = DesiredL - Distances[2];
         DistError = ErrorL-ErrorR;
         UL = (UL+(Kp*ErrorL) + (Ki*ErrorL/1024)+ (Kd*(ErrorL - TempDL)));
         UR = (UR+(Kp*ErrorR) + (Ki*ErrorR/1024)+ (Kd*(ErrorR - TempDR)));
 
-        if (Distances[1] < 100) {
+        if (Distances[1] < 250) {
             if (Distances[0] < Distances[2]) {
-                Motor_Right(UL,0);
+                Motor_Right(5000,0);
             }
             else if (Distances[2] < Distances[0]) {
-                Motor_Left(0,UR);
+                Motor_Left(0,5000);
+            }
+            else {
+                Motor_Right(5000, 0);
             }
         }
         else {
 
-            if (Distances[0] < 125 && Distances[2] > 175) {
+            if (Distances[0] < 150 && Distances[2] > 175) {
                 Motor_Forward(UL,UR);
             }
-            else if (Distances[2] < 125 && Distances[0] > 175) {
+            else if (Distances[2] < 150 && Distances[0] > 175) {
                 Motor_Forward(UL,UR);
             }
             else {
-                Motor_Forward(3500,3500);
+                Motor_Forward(5000,5000);
             }
         }
 
@@ -98,7 +101,7 @@ void SysTick_Handler(void) {
         TempDR = ErrorR;
 
         semaphore = 0;
-        Clock_Delay1ms(10);
+
     }
     semaphore++;
 }
