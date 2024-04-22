@@ -15,7 +15,6 @@
 #include "Clock.h"
 #include "Motor.h"
 #include "PWM.h"
-#include "Tachometer.h"
 
 // Global variable and semaphore for bump sensor result
 volatile uint8_t bumpSensorResult;
@@ -93,7 +92,6 @@ uint8_t Bump_Read(void){
 }
 
 // Crashing
-// Runs on MSP432, interrupt version
 // If a bump sensor is triggered, that means your robot has “crashed”
 // The response to a crash is for your robot to simply stop
 // and pause for 0.5 seconds. After the pause,
@@ -111,8 +109,9 @@ void PORT4_IRQHandler(void) {
         bumpSensorResult = 1;
         P1->OUT ^= 0x01;  // Toggle debugging light
 
-        Motor_Stop(); // Stop the robot
+        Motor_Stop(0, 0); // Stop the robot
         Clock_Delay1ms(500);  // Wait for 0.5 seconds
+        Motor_Backward(3500, 3500);
         bumpSensorResult = 0; // Reset bump sensor result
     }
 }
