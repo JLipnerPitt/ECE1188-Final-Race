@@ -113,32 +113,6 @@ void PORT4_IRQHandler(void) {
 
         Motor_Stop(); // Stop the robot
         Clock_Delay1ms(500);  // Wait for 0.5 seconds
-
-        // Robot recovery behavior based on distance sensor readings
-       // if (bumpSensorResult == 1) {
-
-           // pollDistanceSensor();  // Update the Distances array with latest sensor data
-
-            // Check if there is space in both directions
-          //  if (Distances[0] >= 125 && Distances[2] >= 125) {
-          //      Motor_Forward(3500, 3500); // No obstacles in both directions, go forward
-           // } else if (Distances[0] < 125 && Distances[2] < 125) {
-                // Obstacles in both directions, backup and turn left
-           //     Motor_Backward(3500, 3500);
-           //     Clock_Delay1ms(100);  // Allow some time for the backup maneuver
-           //     Motor_Left(3500, 3500);
-           // } else {
-                // Obstacle only on one side, turn away from it
-            //    if (Distances[0] > Distances[2]) {
-             //       Motor_Left(3500, 3500); // More space on the left, turn left
-              //  } else {
-              //      Motor_Right(3500, 3500); // More space on the right, turn right
-              //  }
-           // }
-
-          //  Clock_Delay1ms(250);  // Allow time for the maneuver to take place
-      //  }
-
         bumpSensorResult = 0; // Reset bump sensor result
     }
 }
