@@ -71,17 +71,17 @@ char chat;
 void SysTick_Handler(void) {
 
 
-    if(chat == 'g'){
+    if(chat == 'g'){//HEX:67
         Motor_Forward(7500, 7500);
         LaunchPad_Output(0x06);     //sky blue = forward/go
     }
 
-    if(chat == 'b'){
+    if(chat == 'b'){//HEX:62
         Motor_Backward(7500, 7500);
         LaunchPad_Output(0x05);     //pink = backward
     }
 
-    if(chat == 's'){
+    if(chat == 's'){//HEX:73
         Motor_Stop(0, 0);
         LaunchPad_Output(0x07);     //white = stop
     }
