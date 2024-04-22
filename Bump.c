@@ -52,15 +52,11 @@ void Bump_Init(void){
 
     //bumpSensorResult = 0;
 
-
     //creating LED indicator for trigger
     P1->SEL0 &= ~0x01;
     P1->SEL1 &= ~0x01;                 // configure built-in LED1 as GPIO
     P1->DIR |= 0x01;                   // make built-in LED1 out
     P1->OUT &= ~0x01;
-
-
-
 }
 // Read current state of 6 switches
 // Returns a 6-bit positive logic result (0 to 63)
@@ -88,7 +84,7 @@ uint8_t Bump_Read(void){
     // bumpSensorSemaphore = 1;
 
     // return bumpSensorResult;
-    // return 0;
+   // return 0;
 }
 
 // Crashing
@@ -111,7 +107,10 @@ void PORT4_IRQHandler(void) {
 
         Motor_Stop(0, 0); // Stop the robot
         Clock_Delay1ms(500);  // Wait for 0.5 seconds
-        Motor_Backward(3500, 3500);
+        Motor_Right(7500, 7500);
+        Clock_Delay1ms(50);  // Wait for 0.5 seconds
+        Motor_Backward(7500, 7500);
+        Clock_Delay1ms(300);
         bumpSensorResult = 0; // Reset bump sensor result
     }
 }
