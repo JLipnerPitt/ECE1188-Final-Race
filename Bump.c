@@ -1,4 +1,4 @@
-// BumpInt.c
+// Bump.c
 // Runs on MSP432, interrupt version
 // Provide low-level functions that interface bump switches on the robot.
 
@@ -12,8 +12,10 @@
 
 #include <stdint.h>
 #include "msp.h"
-#include "Motor.h"
 #include "Clock.h"
+#include "Motor.h"
+#include "PWM.h"
+#include "Tachometer.h"
 
 // Global variable and semaphore for bump sensor result
 volatile uint8_t bumpSensorResult;
@@ -74,46 +76,43 @@ uint8_t Bump_Read(void){
     //uint32_t B1, B2, B3, B4, B5 ,B6;
 
     // Read the state of the bump sensors and store the result
-    B1 = (~(P4->IN)& 0x01);
-    B2 = (~(P4->IN)& 0x04)>>1;
-    B3 = (~(P4->IN)& 0x08)>>1;
-    B4 = (~(P4->IN)& 0x20)>>2;
-    B5 = (~(P4->IN)& 0x40)>>2;
-    B6 = (~(P4->IN)& 0x80)>>2;
+    // B1 = (~(P4->IN)& 0x01);
+    // B2 = (~(P4->IN)& 0x04)>>1;
+    // B3 = (~(P4->IN)& 0x08)>>1;
+    // B4 = (~(P4->IN)& 0x20)>>2;
+    // B5 = (~(P4->IN)& 0x40)>>2;
+    // B6 = (~(P4->IN)& 0x80)>>2;
 
-    //bumpSensorResult = ( B1 | B2 | B3 | B4 | B5 | B6 );
+    // bumpSensorResult = ( B1 | B2 | B3 | B4 | B5 | B6 );
 
     // Set semaphore to indicate new data is available
-    //bumpSensorSemaphore = 1;
+    // bumpSensorSemaphore = 1;
 
-    //return bumpSensorResult;
-    return 0;
+    // return bumpSensorResult;
+    // return 0;
 }
 
 // Crashing
+// Runs on MSP432, interrupt version
 // If a bump sensor is triggered, that means your robot has “crashed”
 // The response to a crash is for your robot to simply stop
 // and pause for 0.5 seconds. After the pause,
 // you are free to recover from the crash in whatever way you see fit.
 // we do not care about critical section/race conditions
 // triggered on touch, falling edge
-void PORT4_IRQHandler(void){
-    // Read the 6-bit value from the sensors
-    uint8_t status;
+// Global variable to detect bumps
+void PORT4_IRQHandler(void) {
 
+    uint8_t status; // Read the 6-bit value from the sensors
+    int32_t Distances;
     status = P4->IV;
 
-    if(status != 0x00){
+    if (status != 0x00) {
         bumpSensorResult = 1;
-        P1->OUT ^= 0x01;  //switching light for debugging
-        while(bumpSensorResult == 1){
-            //read in bump values
-            Motor_Stop();
-            Clock_Delay1ms(500); //wait for 0.5 seconds
-            //based on sensor data back to left or back to right or move forward
-            //incorporate justins part
-        }
-    }
+        P1->OUT ^= 0x01;  // Toggle debugging light
 
-    bumpSensorResult = 0;
+        Motor_Stop(); // Stop the robot
+        Clock_Delay1ms(500);  // Wait for 0.5 seconds
+        bumpSensorResult = 0; // Reset bump sensor result
+    }
 }
