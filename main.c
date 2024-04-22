@@ -12,8 +12,6 @@
 #include "Motor.h" // Include Motor header file
 #include "Bump.h"  // Include Bump header file
 
-
-
 void UartSetCur(uint8_t newX, uint8_t newY)
 {
   if(newX == 6){
@@ -24,6 +22,7 @@ void UartSetCur(uint8_t newX, uint8_t newY)
     UART0_OutString("\n\r");
   }
 }
+
 void UartClear(void){UART0_OutString("\n\r");};
 #define Init UART0_Init
 #define Clear UartClear
@@ -83,7 +82,7 @@ void SysTick_Handler(void) {
     }
 
     if(chat == 's'){
-        Motor_Stop();
+        Motor_Stop(0, 0);
         LaunchPad_Output(0x07);     //white = stop
     }
 
