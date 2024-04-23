@@ -61,7 +61,7 @@ int32_t DistError;
 int32_t DesiredR = 250;
 int32_t DesiredL = 250;
 int32_t TempDR, TempDL, TempD_Error = 0;
-uint32_t LeftDuty, RightDuty = 5000;
+uint32_t LeftDuty, RightDuty = 7500;
 uint8_t semaphore = 0;
 int32_t UR,UL;
 
@@ -75,25 +75,25 @@ void SysTick_Handler(void) {
 
         if (Distances[1] < 250) {
             if (Distances[0] < Distances[2]) {
-                Motor_Right(5000,0);
+                Motor_Right(3500,0);
             }
             else if (Distances[2] < Distances[0]) {
-                Motor_Left(0,5000);
+                Motor_Left(0,3500);
             }
-            else {
-                Motor_Right(5000, 0);
-            }
+
         }
         else {
-
-            if (Distances[0] < 150 && Distances[2] > 175) {
+            if (Distances[2] > 500) {
+                Motor_Right(3500,0);
+            }
+            else if (Distances[0] < 150 && Distances[2] > 175) {
                 Motor_Forward(UL,UR);
             }
             else if (Distances[2] < 150 && Distances[0] > 175) {
                 Motor_Forward(UL,UR);
             }
             else {
-                Motor_Forward(5000,5000);
+                Motor_Forward(6750,6750);
             }
         }
 
@@ -101,6 +101,7 @@ void SysTick_Handler(void) {
         TempDR = ErrorR;
 
         semaphore = 0;
+        return;
 
     }
     semaphore++;
@@ -109,7 +110,7 @@ void main(void)
 { // busy-wait implementation
 
   Clock_Init48MHz();
-  I2CB1_Init(30); // baud rate = 12MHz/60=200kHz
+  I2CB1_Init(30); // baud rate = 12MHz/30=400kHz
   Motor_Init();
   Tachometer_Init();
   //Init();
@@ -123,8 +124,8 @@ void main(void)
   SysTick_Init(48000,2);
     while(1)
     {
-      UR = DesiredR;
-      UL = DesiredL;
+      UR = 6750;
+      UL = 6750;
       if(pollDistanceSensor())
       {
         TimeToConvert = ((StartTime-SysTick->VAL)&0x00FFFFFF)/48000; // msec
