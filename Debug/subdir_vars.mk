@@ -20,7 +20,6 @@ C_SRCS += \
 ../TA3InputCapture.c \
 ../Tachometer.c \
 ../TimerA0.c \
-../TimerA1.c \
 ../UART0.c \
 ../main.c \
 ../opt3101.c \
@@ -39,7 +38,6 @@ C_DEPS += \
 ./TA3InputCapture.d \
 ./Tachometer.d \
 ./TimerA0.d \
-./TimerA1.d \
 ./UART0.d \
 ./main.d \
 ./opt3101.d \
@@ -58,7 +56,6 @@ OBJS += \
 ./TA3InputCapture.obj \
 ./Tachometer.obj \
 ./TimerA0.obj \
-./TimerA1.obj \
 ./UART0.obj \
 ./main.obj \
 ./opt3101.obj \
@@ -77,7 +74,6 @@ OBJS__QUOTED += \
 "TA3InputCapture.obj" \
 "Tachometer.obj" \
 "TimerA0.obj" \
-"TimerA1.obj" \
 "UART0.obj" \
 "main.obj" \
 "opt3101.obj" \
@@ -96,7 +92,6 @@ C_DEPS__QUOTED += \
 "TA3InputCapture.d" \
 "Tachometer.d" \
 "TimerA0.d" \
-"TimerA1.d" \
 "UART0.d" \
 "main.d" \
 "opt3101.d" \
@@ -115,7 +110,6 @@ C_SRCS__QUOTED += \
 "../TA3InputCapture.c" \
 "../Tachometer.c" \
 "../TimerA0.c" \
-"../TimerA1.c" \
 "../UART0.c" \
 "../main.c" \
 "../opt3101.c" \

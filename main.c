@@ -56,33 +56,38 @@ int32_t Error_R;
 int32_t Ki = 31000;  // integral gain
 float Kp = 14.8; // proportional gain
 float Kd = 0.0000009; // derivative gain
-int32_t ErrorR;
-int32_t ErrorL;
-int32_t DistError;
-int32_t DesiredR = 250;
-int32_t DesiredL = 250;
+int32_t DistErrorR;
+int32_t DistErrorL;
+uint32_t DistError;
+uint32_t DistReference = 0;
+uint32_t DistAdjustment;
 int32_t TempDR, TempDL, TempD_Error = 0;
 uint32_t LeftDuty, RightDuty = 5000;
 uint8_t semaphore = 0;
 int32_t UR,UL;
 
 void SysTick_Handler(void) {
+
     if (semaphore == 2) {
-        ErrorL = DesiredR - Distances[0];
-        ErrorR = DesiredL - Distances[2];
-        DistError = ErrorL-ErrorR;
-        UL = (UL+(Kp*ErrorL) + (Ki*ErrorL/1024)+ (Kd*(ErrorL - TempDL)));
-        UR = (UR+(Kp*ErrorR) + (Ki*ErrorR/1024)+ (Kd*(ErrorR - TempDR)));
+        Reflectance_Start();
+    }
+    else if (semaphore == 3) {
+        Reflectance_End();
+        DistError = Distances[0] - Distances[2];
+        DistAdjustment = DistError/2;
+
+        UL = (UL+(Kp*DistAdjustment) + (Ki*DistAdjustment/1024)+ (Kd*(DistAdjustment - TempDL)));
+        UR = (UR+(Kp*DistAdjustment) + (Ki*DistAdjustment/1024)+ (Kd*(DistAdjustment - TempDR)));
 
         if (Distances[1] < 250) {
             if (Distances[0] < Distances[2]) {
-                Motor_Right(5000,0);
+                Motor_Right(UL,0);
             }
             else if (Distances[2] < Distances[0]) {
-                Motor_Left(0,5000);
+                Motor_Left(0,UR);
             }
             else {
-                Motor_Right(5000, 0);
+                Motor_Right(UL, 0);
             }
         }
         else {
@@ -98,10 +103,10 @@ void SysTick_Handler(void) {
             }
         }
 
-        TempDL = ErrorL;
-        TempDR = ErrorR;
-
+        TempDL = DistAdjustment;
+        TempDR = DistAdjustment;
         semaphore = 0;
+        return;
 
     }
     semaphore++;
@@ -125,8 +130,8 @@ void main(void)
   SysTick_Init(48000,2);
     while(1)
     {
-      UR = DesiredR;
-      UL = DesiredL;
+      UR = 5000;
+      UL = 5000;
       if(pollDistanceSensor())
       {
         TimeToConvert = ((StartTime-SysTick->VAL)&0x00FFFFFF)/48000; // msec
@@ -134,7 +139,6 @@ void main(void)
         OPT3101_StartMeasurementChannel(channel);
         StartTime = SysTick->VAL;
       }
-      Reflectance_Start();
       WaitForInterrupt();
     }
   }

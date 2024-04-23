@@ -9,7 +9,6 @@
 "./TA3InputCapture.obj"
 "./Tachometer.obj"
 "./TimerA0.obj"
-"./TimerA1.obj"
 "./UART0.obj"
 "./main.obj"
 "./opt3101.obj"
