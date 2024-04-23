@@ -13,11 +13,10 @@ ORDERED_OBJS += \
 "./Bump.obj" \
 "./Clock.obj" \
 "./CortexM.obj" \
-"./FFT.obj" \
 "./I2CB1.obj" \
-"./LPF.obj" \
 "./Motor.obj" \
 "./PWM.obj" \
+"./Reflectance.obj" \
 "./SysTickInts.obj" \
 "./TA3InputCapture.obj" \
 "./Tachometer.obj" \
@@ -158,8 +157,8 @@ Final\ Race.out: $(OBJS) $(CMD_SRCS) $(GEN_CMDS)
 # Other Targets
 clean:
 	-$(RM) $(EXE_OUTPUTS__QUOTED)
-	-$(RM) "Bump.obj" "Clock.obj" "CortexM.obj" "FFT.obj" "I2CB1.obj" "LPF.obj" "Motor.obj" "PWM.obj" "SysTickInts.obj" "TA3InputCapture.obj" "Tachometer.obj" "TimerA0.obj" "TimerA1.obj" "UART0.obj" "main.obj" "opt3101.obj" "startup_msp432p401r_ccs.obj" "system_msp432p401r.obj" 
-	-$(RM) "Bump.d" "Clock.d" "CortexM.d" "FFT.d" "I2CB1.d" "LPF.d" "Motor.d" "PWM.d" "SysTickInts.d" "TA3InputCapture.d" "Tachometer.d" "TimerA0.d" "TimerA1.d" "UART0.d" "main.d" "opt3101.d" "startup_msp432p401r_ccs.d" "system_msp432p401r.d" 
+	-$(RM) "Bump.obj" "Clock.obj" "CortexM.obj" "I2CB1.obj" "Motor.obj" "PWM.obj" "Reflectance.obj" "SysTickInts.obj" "TA3InputCapture.obj" "Tachometer.obj" "TimerA0.obj" "TimerA1.obj" "UART0.obj" "main.obj" "opt3101.obj" "startup_msp432p401r_ccs.obj" "system_msp432p401r.obj" 
+	-$(RM) "Bump.d" "Clock.d" "CortexM.d" "I2CB1.d" "Motor.d" "PWM.d" "Reflectance.d" "SysTickInts.d" "TA3InputCapture.d" "Tachometer.d" "TimerA0.d" "TimerA1.d" "UART0.d" "main.d" "opt3101.d" "startup_msp432p401r_ccs.d" "system_msp432p401r.d" 
 	-@echo 'Finished clean'
 	-@echo ' '
 

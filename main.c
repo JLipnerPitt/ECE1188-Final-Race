@@ -10,6 +10,7 @@
 #include "Motor.h"
 #include "PWM.h"
 #include "Tachometer.h"
+#include "Reflectance.h"
 
 void UartSetCur(uint8_t newX, uint8_t newY)
 {
@@ -109,8 +110,9 @@ void main(void)
 { // busy-wait implementation
 
   Clock_Init48MHz();
-  I2CB1_Init(30); // baud rate = 12MHz/60=200kHz
+  I2CB1_Init(30); // baud rate = 12MHz/30=400kHz
   Motor_Init();
+  Reflectance_Init();
   Tachometer_Init();
   //Init();
   //Clear();
@@ -132,6 +134,7 @@ void main(void)
         OPT3101_StartMeasurementChannel(channel);
         StartTime = SysTick->VAL;
       }
+      Reflectance_Start();
       WaitForInterrupt();
     }
   }

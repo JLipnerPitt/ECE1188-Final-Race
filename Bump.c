@@ -43,15 +43,12 @@ void Bump_Init(void){
     // Save the user-supplied collision handling function
     //collisionHandler = task;
 
-    //commented out for lab5
     // Configure and enable interrupts for bump sensors
     P4->IES = 0xED;    // Interrupt on falling edge for P4.7, P4.6, P4.5, P4.3, P4.2, P4.0
     P4->IFG = 0x00;    // Clear interrupt flags
     P4->IE = 0xED;     // Enable interrupts for P4.7, P4.6, P4.5, P4.3, P4.2, P4.0
 
-    //NVIC_EnableIRQ(PORT4_IRQn);  // Enable the interrupt in NVIC
-
-    //commented out for lab5
+    NVIC_EnableIRQ(PORT4_IRQn);  // Enable the interrupt in NVIC
     NVIC->IP[9] = (NVIC->IP[9]&0xFF00FFFF)|0x00800000; // priority 2
     NVIC->ISER[1] = 0x00000040;        // enable interrupt 35 in NVIC
 

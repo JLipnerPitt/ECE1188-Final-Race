@@ -30,6 +30,7 @@ main.obj: ../SysTickInts.h
 main.obj: ../Motor.h
 main.obj: ../PWM.h
 main.obj: ../Tachometer.h
+main.obj: ../Reflectance.h
 
 ../main.c:
 
@@ -90,4 +91,6 @@ C:/ti/ccs1260/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/stdbool.h:
 ../PWM.h:
 
 ../Tachometer.h:
+
+../Reflectance.h:
 
