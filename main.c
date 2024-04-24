@@ -12,24 +12,6 @@
 #include "Tachometer.h"
 #include "Bump.h"  // Include Bump header file
 
-void UartSetCur(uint8_t newX, uint8_t newY)
-{
-  if(newX == 6){
-    UART0_OutString("\n\rTxChannel= ");
-    UART0_OutUDec(newY-1);
-    UART0_OutString(" Distance= ");
-  }else{
-    UART0_OutString("\n\r");
-  }
-}
-void UartClear(void){UART0_OutString("\n\r");};
-#define Init UART0_Init
-#define Clear UartClear
-#define SetCursor UartSetCur
-#define OutString UART0_OutString
-#define OutChar UART0_OutChar
-#define OutUDec UART0_OutUDec
-
 
 uint32_t Distances[3];
 uint32_t FilteredDistances[3];
@@ -40,11 +22,33 @@ uint32_t TimeToConvert; // in msec
 uint32_t channel = 1;
 uint8_t MainCount = 0;
 
+uint32_t time = 0;
+uint32_t time_100 = 0;
+uint32_t *Num_crash = 0;
+uint32_t max_speed = 0;
+uint32_t distL[100];
+uint32_t distM[100];
+uint32_t distR[100];
+int cnt = 0;
+
 bool pollDistanceSensor(void)
 {
   if(OPT3101_CheckDistanceSensor())
   {
     TxChannel = OPT3101_GetMeasurement(Distances,Amplitudes);
+    if(cnt == 100){
+        int i;
+        for(i = 0; i < 100; i++){
+            distL[i] = distL[i + 1];
+            distM[i] = distM[i + 1];
+            distR[i] = distR[i + 1];
+        }
+        cnt = 99;
+    }
+    distL[cnt] = Distances[0];
+    distM[cnt] = Distances[1];
+    distR[cnt] = Distances[2];
+    cnt++;
     return true;
   }
   return false;
@@ -92,6 +96,13 @@ void SysTick_Handler(void) {
         UL = (UL+(Kp*ErrorL) + (Ki*ErrorL/1024)+ (Kd*(ErrorL - TempDL)));
         UR = (UR+(Kp*ErrorR) + (Ki*ErrorR/1024)+ (Kd*(ErrorR - TempDR)));
 
+        if(UL > max_speed){
+            max_speed = UL;
+        }
+        if(UR > max_speed){
+            max_speed = UR;
+        }
+
         if (Distances[1] < 250) {
             if (Distances[0] < Distances[2]) {
                 Motor_Right(3500,0);
@@ -112,7 +123,7 @@ void SysTick_Handler(void) {
                 Motor_Forward(UL,UR);
             }
             else {
-                Motor_Forward(6750,6750);
+                //Motor_Forward(6750,6750);
             }
         }
 
@@ -124,6 +135,9 @@ void SysTick_Handler(void) {
 
     }
     semaphore++;
+
+
+
 }
 void main(void)
 { // busy-wait implementation
@@ -133,7 +147,7 @@ void main(void)
   UART0_Init(); // Initialize UART communication
   Motor_Init();
   Tachometer_Init();
-  Bump_Init();  // Initialize bump sensors
+  Bump_Init(Num_crash);  // Initialize bump sensors
   LaunchPad_Init();
   OPT3101_Init();
   OPT3101_Setup();
@@ -145,7 +159,13 @@ void main(void)
   PWM_Init(14999);
     while(1)
     {
-      chat = UART0_InChar(); // Receive command from Bluetooth
+      //chat = UART0_InChar(); // Receive command from Bluetooth
+        while((EUSCI_A0->IFG&0x01) == 0){
+          chat = (EUSCI_A0->RXBUF);
+        }
+
+
+
 
       UR = 6750;
       UL = 6750;
@@ -158,5 +178,9 @@ void main(void)
         StartTime = SysTick->VAL;
       }
       WaitForInterrupt();
+
+      time_100++;
+      Clock_Delay1ms(10);
     }
+    time = time_100 / 100;
   }
