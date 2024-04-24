@@ -13,25 +13,6 @@
 #include "Tachometer.h"
 #include "Bump.h"  // Include Bump header file
 
-void UartSetCur(uint8_t newX, uint8_t newY)
-{
-  if(newX == 6){
-    UART0_OutString("\n\rTxChannel= ");
-    UART0_OutUDec(newY-1);
-    UART0_OutString(" Distance= ");
-  }else{
-    UART0_OutString("\n\r");
-  }
-}
-void UartClear(void){UART0_OutString("\n\r");};
-#define Init UART0_Init
-#define Clear UartClear
-#define SetCursor UartSetCur
-#define OutString UART0_OutString
-#define OutChar UART0_OutChar
-#define OutUDec UART0_OutUDec
-
-
 uint32_t Distances[3];
 uint32_t FilteredDistances[3];
 uint32_t Amplitudes[3];
@@ -66,11 +47,12 @@ int32_t TempDR, TempDL, TempD_Error = 0;
 uint32_t LeftDuty, RightDuty = 7500;
 uint8_t semaphore = 0;
 int32_t UR,UL;
-char on;
+char chat;
+
 
 void SysTick_Handler(void) {
     //distance sensor logic
-    if (semaphore == 2) {
+    if (semaphore == 2){
         ErrorL = DesiredR - Distances[0];
         ErrorR = DesiredL - Distances[2];
         DistError = ErrorL-ErrorR;
@@ -84,7 +66,6 @@ void SysTick_Handler(void) {
             else if (Distances[2] < Distances[0]) {
                 Motor_Left(0,3500);
             }
-
         }
         else {
             if (Distances[2] > 500) {
@@ -106,9 +87,19 @@ void SysTick_Handler(void) {
 
         semaphore = 0;
         return;
-
     }
     semaphore++;
+
+
+    //if(chat == 'g'){
+     // Motor_Forward(7500, 7500);
+     // LaunchPad_Output(0x06);     //sky blue = forward/go
+    //}
+
+    //if(chat == 's'){
+    // Motor_Stop(0, 0);
+    // LaunchPad_Output(0x07);     //white = stop
+    // }
 }
 void main(void)
 { // busy-wait implementation
@@ -128,26 +119,8 @@ void main(void)
   StartTime = SysTick->VAL;
   SysTick_Init(48000,2);
   PWM_Init(14999);
-    while(1)
-    {
-      // Receive command from Bluetooth
-      while((EUSCI_A0->IFG&0x01) == 0){
-          if (on == 0){
-              char ch;
-              ch = UART0_InChar();
-              break;
-          }
-        char chat = ((char)(EUSCI_A0->RXBUF));
-          if(chat == 'g'){
-             Motor_Forward(7500, 7500);
-             LaunchPad_Output(0x06);     //sky blue = forward/go
-         }
-
-         if(chat == 's'){
-             Motor_Stop(0, 0);
-             LaunchPad_Output(0x07);     //white = stop
-         }
-      }
+  while(1){
+      //chat = UART0_InChar();
 
       UR = 6750;
       UL = 6750;
@@ -161,4 +134,5 @@ void main(void)
       }
       WaitForInterrupt();
     }
-  }
+}
+
