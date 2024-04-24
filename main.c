@@ -5,13 +5,13 @@
 #include "CortexM.h"
 #include "opt3101.h"
 #include "LaunchPad.h"
+#include "UART0.h"
+#include <stdio.h>
 #include "SysTickInts.h"
+#include "Motor.h"
 #include "PWM.h"
 #include "Tachometer.h"
-#include "UART0.h" // Include UART0 header file
-#include "Motor.h" // Include Motor header file
 #include "Bump.h"  // Include Bump header file
-#include "TimerA1.h"
 
 void UartSetCur(uint8_t newX, uint8_t newY)
 {
@@ -23,7 +23,6 @@ void UartSetCur(uint8_t newX, uint8_t newY)
     UART0_OutString("\n\r");
   }
 }
-
 void UartClear(void){UART0_OutString("\n\r");};
 #define Init UART0_Init
 #define Clear UartClear
@@ -64,54 +63,41 @@ int32_t DistError;
 int32_t DesiredR = 250;
 int32_t DesiredL = 250;
 int32_t TempDR, TempDL, TempD_Error = 0;
-uint32_t LeftDuty, RightDuty = 5000;
+uint32_t LeftDuty, RightDuty = 7500;
 uint8_t semaphore = 0;
 int32_t UR,UL;
-char chat;
-
-//hardware interupt using TimerA1
-void CheckCommands(void){
-    if(chat == 'g'){//HEX:67
-        Motor_Forward(7500, 7500);
-        LaunchPad_Output(0x06);     //sky blue = forward/go
-    }
-
-    if(chat == 'b'){//HEX:62
-        Motor_Backward(7500, 7500);
-        LaunchPad_Output(0x05);     //pink = backward
-    }
-    if(chat == 's'){//HEX:73
-        Motor_Stop(0, 0);
-        LaunchPad_Output(0x07);     //white = stop
-    }
-}
+char on;
 
 void SysTick_Handler(void) {
-    if (semaphore == 3) {
+    //distance sensor logic
+    if (semaphore == 2) {
         ErrorL = DesiredR - Distances[0];
         ErrorR = DesiredL - Distances[2];
         DistError = ErrorL-ErrorR;
         UL = (UL+(Kp*ErrorL) + (Ki*ErrorL/1024)+ (Kd*(ErrorL - TempDL)));
         UR = (UR+(Kp*ErrorR) + (Ki*ErrorR/1024)+ (Kd*(ErrorR - TempDR)));
 
-        if (Distances[1] < 100) {
+        if (Distances[1] < 250) {
             if (Distances[0] < Distances[2]) {
-                Motor_Right(UL,0);
+                Motor_Right(3500,0);
             }
             else if (Distances[2] < Distances[0]) {
-                Motor_Left(0,UR);
+                Motor_Left(0,3500);
             }
+
         }
         else {
-
-            if (Distances[0] < 125 && Distances[2] > 175) {
+            if (Distances[2] > 500) {
+                Motor_Right(3500,0);
+            }
+            else if (Distances[0] < 150 && Distances[2] > 175) {
                 Motor_Forward(UL,UR);
             }
-            else if (Distances[2] < 125 && Distances[0] > 175) {
+            else if (Distances[2] < 150 && Distances[0] > 175) {
                 Motor_Forward(UL,UR);
             }
             else {
-                //Motor_Forward(3500,3500); JUSTIN THIS LINE FUCKS EVERYTHING UP
+                Motor_Forward(6750,6750);
             }
         }
 
@@ -119,7 +105,8 @@ void SysTick_Handler(void) {
         TempDR = ErrorR;
 
         semaphore = 0;
-        Clock_Delay1ms(10);
+        return;
+
     }
     semaphore++;
 }
@@ -127,30 +114,43 @@ void main(void)
 { // busy-wait implementation
 
   Clock_Init48MHz();
-  I2CB1_Init(30); // baud rate = 12MHz/60=200kHz
+  I2CB1_Init(30); // baud rate = 12MHz/30=400kHz
   UART0_Init(); // Initialize UART communication
-  Motor_Init(); // Initialize motor ports
+  Motor_Init();
+  Tachometer_Init();
   Bump_Init();  // Initialize bump sensors
   LaunchPad_Init();
-  Tachometer_Init();
-
   OPT3101_Init();
   OPT3101_Setup();
   OPT3101_CalibrateInternalCrosstalk();
   OPT3101_StartMeasurementChannel(channel);
-
-  TimerA1_Init(&CheckCommands, 50000); // Check for collision every 10 ms (assuming 48MHz clock)
   EnableInterrupts();
   StartTime = SysTick->VAL;
   SysTick_Init(48000,2);
   PWM_Init(14999);
-
-  while(1)
+    while(1)
     {
-      chat = UART0_InChar(); // Receive command from Bluetooth
+      // Receive command from Bluetooth
+      while((EUSCI_A0->IFG&0x01) == 0){
+          if (on == 0){
+              char ch;
+              ch = UART0_InChar();
+              break;
+          }
+        char chat = ((char)(EUSCI_A0->RXBUF));
+          if(chat == 'g'){
+             Motor_Forward(7500, 7500);
+             LaunchPad_Output(0x06);     //sky blue = forward/go
+         }
 
-      UR = DesiredR;
-      UL = DesiredL;
+         if(chat == 's'){
+             Motor_Stop(0, 0);
+             LaunchPad_Output(0x07);     //white = stop
+         }
+      }
+
+      UR = 6750;
+      UL = 6750;
 
       if(pollDistanceSensor())
       {
