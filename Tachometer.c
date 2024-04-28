@@ -49,7 +49,7 @@ policies, either expressed or implied, of the FreeBSD Project.
 #include "../inc/Clock.h"
 #include "../inc/TA3InputCapture.h"
 #include "msp.h"
-#include "../inc/Tachometer.h"
+#include "Tachometer.h"
 
 uint16_t Tachometer_FirstRightTime, Tachometer_SecondRightTime;
 uint16_t Tachometer_FirstLeftTime, Tachometer_SecondLeftTime;

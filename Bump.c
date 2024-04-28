@@ -20,6 +20,8 @@
 volatile uint8_t bumpSensorResult;
 volatile uint8_t bumpSensorSemaphore;
 
+volatile int num_crashes = 0;
+
 // Function pointer for user-supplied collision handling function
 /*typedef void (*CollisionHandler)(uint8_t);
 static CollisionHandler collisionHandler = 0;*/
@@ -31,6 +33,7 @@ static CollisionHandler collisionHandler = 0;*/
 // Interrupt on falling edge (on touch)
 //void BumpInt_Init(void(*task)(uint8_t)){
 void Bump_Init(void){
+
     // Configure bump sensor pins as inputs with internal pull-up resistors
     P4->SEL0 = 0x00;  // configure P4.7, P4.6, P4.5, P4.3, P4.2, P4.0 as GPIO
     P4->SEL1 = 0x00;  // configure P4.7, P4.6, P4.5, P4.3, P4.2, P4.0 as GPIO
@@ -58,7 +61,6 @@ void Bump_Init(void){
     P1->SEL1 &= ~0x01;                 // configure built-in LED1 as GPIO
     P1->DIR |= 0x01;                   // make built-in LED1 out
     P1->OUT &= ~0x01;
-
 
 
 }
@@ -91,6 +93,11 @@ uint8_t Bump_Read(void){
      return 0;
 }
 
+//return funct
+int Return_Crash(void){
+    return num_crashes;
+}
+
 // Crashing
 // If a bump sensor is triggered, that means your robot has â€œcrashedâ€�
 // The response to a crash is for your robot to simply stop
@@ -102,14 +109,17 @@ uint8_t Bump_Read(void){
 void PORT4_IRQHandler(void) {
 
     uint8_t status; // Read the 6-bit value from the sensors
-    int32_t Distances;
+    //int32_t Distances;
     status = P4->IV;
 
     if (status != 0x00) {
-        bumpSensorResult = 1;
+        num_crashes++;
         P1->OUT ^= 0x01;  // Toggle debugging light
 
-        Motor_Stop(0, 0); // Stop the robot
+        /*
+        bumpSensorResult = 1;
+
+        Motor_Stop(); // Stop the robot
         Clock_Delay1ms(500);  // Wait for 0.5 seconds
 
         Motor_Backward(7500, 7500);
@@ -120,5 +130,7 @@ void PORT4_IRQHandler(void) {
 
         Motor_Forward(5000, 5000);
         bumpSensorResult = 0; // Reset bump sensor result
+        */
+
     }
 }

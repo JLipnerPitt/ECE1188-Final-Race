@@ -1,28 +1,14 @@
 /**
- * @file      BumpInt.h
- * @brief     Provide low-level functions that interface bump switches on the robot.
- * @details   Six switches are connected to P4.7-P4.5, P4.3, P4.2, and P4.0<br>
- 1) Hardware uses negative logic with internal pullup<br>
- 2) Positioned on the front of the robot to detect collisions<br>
- 3) Software returns 6-bit positive logic (1 means collision)<br>
- 4) Interrupt driven event handler
+ * @file      TimerA2.h
+ * @brief     Initialize Timer A2
+ * @details   Use Timer A2 for periodic interrupts.
  * @version   TI-RSLK MAX v1.1
  * @author    Daniel Valvano and Jonathan Valvano
  * @copyright Copyright 2019 by Jonathan W. Valvano, valvano@mail.utexas.edu,
  * @warning   AS-IS
+ * @warning   CC3100 uses Timer A2
  * @note      For more information see  http://users.ece.utexas.edu/~valvano/
  * @date      June 28, 2019
-
-<table>
-<caption id="Bump_ports4a">Six Bump sensors</caption>
-<tr><th>Pin  <th>Sensor
-<tr><td>P4.7 <td>Bump5, left side of robot
-<tr><td>P4.6 <td>Bump4
-<tr><td>P4.5 <td>Bump3
-<tr><td>P4.3 <td>Bump2
-<tr><td>P4.2 <td>Bump1
-<tr><td>P4.0 <td>Bump0, right side of robot
-</table>
  ******************************************************************************/
 
 /* This example accompanies the book
@@ -32,7 +18,7 @@
  http://users.ece.utexas.edu/~valvano/
 
 Simplified BSD License (FreeBSD License)
-Copyright (c) 2017, Jonathan Valvano, All rights reserved.
+Copyright (c) 2019, Jonathan Valvano, All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:
@@ -58,39 +44,32 @@ The views and conclusions contained in the software and documentation are
 those of the authors and should not be interpreted as representing official
 policies, either expressed or implied, of the FreeBSD Project.
 */
+
+#ifndef __TIMERA2INTS_H__ // do not include more than once
+#define __TIMERA2INTS_H__
 /*!
- * @defgroup RSLK_Input_Output
+ * @defgroup Timer
  * @brief
  * @{*/
 
 /**
- * Initialize Bump sensors<br>
- * Make P4.7-P4.0 as interrupt-driven inputs<br>
- * Activate interface pull-up<br>
- * Interrupt on falling edge
- * @param task user function to run on collision
+ * Activate Timer A2 interrupts to run user task periodically
+ * @param task is a pointer to a user function called periodically
+ * @param period in 2us units (24/SMCLK), 16 bits
  * @return none
- * @brief  Initialize Bump sensors
+ * @note  Assumes low-speed subsystem master clock is 12 MHz.
+ * With divde by 24 the timer clock will be 500 kHz timer clock.
+ * The slowest period is 65535*2us=130ms, or about 8 Hz
+ * @brief Initialize Timer A2
  */
-#include <stdint.h>
-void Bump_Init(void);
+void TimerA2_Init(void(*task)(void), uint16_t period);
 
 /**
- * Read current state of 6 switches<br>
- * Read P4.7-P4.0 as inputs<br>
- * Returns a 6-bit positive logic result (0 to 63)<br>
- * bit 5 Bump5<br>
- * bit 4 Bump4<br>
- * bit 3 Bump3<br>
- * bit 2 Bump2<br>
- * bit 1 Bump1<br>
- * bit 0 Bump0
+ * Deactivate the interrupt running a user task periodically.
  * @param none
- * @return result is 6-bit positive logic
- * @note  result is a packed, right-justified, positive logic
- * @brief  Read current state of 6 switches
+ * @return none
+ * @brief Deactivate Timer A2
  */
-int Return_Crash(void);
-uint8_t Bump_Read(void);
-uint8_t check_flag(void);
+void TimerA2_Stop(void);
 
+#endif // __TIMERA2INTS_H__

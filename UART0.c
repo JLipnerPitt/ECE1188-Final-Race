@@ -71,8 +71,7 @@ void UART0_Init(void){
   EUSCI_A0->CTLW0 = 0x00C1;
                                  // set the baud rate
                                  // N = clock/baud rate = 12,000,000/115,200 = 104.1667
-  EUSCI_A0->BRW = 1250;           // UCBR = baud rate = int(N) = 104
-
+  EUSCI_A0->BRW = 104;           // UCBR = baud rate = int(N) = 104
   EUSCI_A0->MCTLW &= ~0xFFF1;    // clear first and second modulation stage bit fields
   P1->SEL0 |= 0x0C;
   P1->SEL1 &= ~0x0C;             // configure P1.3 and P1.2 as primary module function
@@ -96,8 +95,7 @@ char UART0_InChar(void){
 void UART0_OutChar(char letter){
     // you write this as part of Lab 11
 
-  while((EUSCI_A0->IFG&0x02) == 0);
-  EUSCI_A0->TXBUF = letter;
+
 }
 
 //------------UART0_OutString------------
@@ -107,10 +105,7 @@ void UART0_OutChar(char letter){
 void UART0_OutString(char *pt){
     // you write this as part of Lab 11
 
-  while(*pt){
-    UART0_OutChar(*pt);
-    pt++;
-  }
+
 }
 
 //------------UART0_InUDec------------
@@ -153,13 +148,7 @@ char character;
 void UART0_OutUDec(uint32_t n){
     // you write this as part of Lab 11
 
-// This function uses recursion to convert decimal number
-//   of unspecified length as an ASCII string
-  if(n >= 10){
-    UART0_OutUDec(n/10);
-    n = n%10;
-  }
-  UART0_OutChar(n+'0'); /* n is between 0 and 9 */
+
 }
 //-----------------------UART0_OutSDec-----------------------
 // Output a 32-bit number in signed decimal format
@@ -169,12 +158,7 @@ void UART0_OutUDec(uint32_t n){
 void UART0_OutSDec(int32_t n){
     // you write this as part of Lab 11
 
-  if(n < 0){
-    UART0_OutChar('-');
-    UART0_OutUDec(-n);
-  }else{
-    UART0_OutUDec(n);
-  }
+
 }
 uint32_t Messageindexb;
 char Messageb[8];
@@ -384,14 +368,14 @@ char character;
       if(length){
         bufPt--;
         length--;
-        //UART0_OutChar(BS);
+        UART0_OutChar(BS);
       }
     }
     else if(length < max){
       *bufPt = character;
       bufPt++;
       length++;
-      //UART0_OutChar(character);
+      UART0_OutChar(character);
     }
     character = UART0_InChar();
   }

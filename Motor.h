@@ -61,9 +61,9 @@ policies, either expressed or implied, of the FreeBSD Project.
  * @defgroup RSLK_Input_Output
  * @brief
  * @{*/
+
 #ifndef MOTOR_H_
 #define MOTOR_H_
-
 
 // *******Lab 13 solution*******
 
@@ -87,7 +87,7 @@ void Motor_Init(void);
  * @return none
  * @brief  Stop the robot
  */
-void Motor_Stop(uint16_t leftDuty, uint16_t rightDuty);
+void Motor_Stop(void);
 
 /**
  * Drive the robot forward by running left and
