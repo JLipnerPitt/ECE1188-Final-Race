@@ -6,6 +6,7 @@
 "./LPF.obj"
 "./Motor.obj"
 "./PWM.obj"
+"./Reflectance.obj"
 "./SysTickInts.obj"
 "./TA3InputCapture.obj"
 "./Tachometer.obj"

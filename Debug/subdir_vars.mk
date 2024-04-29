@@ -17,6 +17,7 @@ C_SRCS += \
 ../LPF.c \
 ../Motor.c \
 ../PWM.c \
+../Reflectance.c \
 ../SysTickInts.c \
 ../TA3InputCapture.c \
 ../Tachometer.c \
@@ -37,6 +38,7 @@ C_DEPS += \
 ./LPF.d \
 ./Motor.d \
 ./PWM.d \
+./Reflectance.d \
 ./SysTickInts.d \
 ./TA3InputCapture.d \
 ./Tachometer.d \
@@ -57,6 +59,7 @@ OBJS += \
 ./LPF.obj \
 ./Motor.obj \
 ./PWM.obj \
+./Reflectance.obj \
 ./SysTickInts.obj \
 ./TA3InputCapture.obj \
 ./Tachometer.obj \
@@ -77,6 +80,7 @@ OBJS__QUOTED += \
 "LPF.obj" \
 "Motor.obj" \
 "PWM.obj" \
+"Reflectance.obj" \
 "SysTickInts.obj" \
 "TA3InputCapture.obj" \
 "Tachometer.obj" \
@@ -97,6 +101,7 @@ C_DEPS__QUOTED += \
 "LPF.d" \
 "Motor.d" \
 "PWM.d" \
+"Reflectance.d" \
 "SysTickInts.d" \
 "TA3InputCapture.d" \
 "Tachometer.d" \
@@ -117,6 +122,7 @@ C_SRCS__QUOTED += \
 "../LPF.c" \
 "../Motor.c" \
 "../PWM.c" \
+"../Reflectance.c" \
 "../SysTickInts.c" \
 "../TA3InputCapture.c" \
 "../Tachometer.c" \
